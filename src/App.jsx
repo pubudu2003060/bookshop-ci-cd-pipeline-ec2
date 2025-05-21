@@ -1,5 +1,9 @@
 import { useState } from 'react';
 import { Search, ShoppingCart, Menu, X, ChevronRight, Heart, Star, ArrowRight } from 'lucide-react';
+import p1 from './assets/tml.jpeg'
+import p2 from './assets/e.jpeg'
+import p3 from './assets/tsoa.jpg'
+import p4 from './assets/phm.jpg'
 
 export default function BookshopHomepage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +18,7 @@ export default function BookshopHomepage() {
       id: 1,
       title: "The Midnight Library",
       author: "Matt Haig",
-      cover: "/api/placeholder/220/320",
+      cover: p1,
       price: "$18.99",
       rating: 4.5
     },
@@ -22,7 +26,7 @@ export default function BookshopHomepage() {
       id: 2,
       title: "Educated",
       author: "Tara Westover",
-      cover: "/api/placeholder/220/320",
+      cover: p2,
       price: "$16.95",
       rating: 4.7
     },
@@ -30,7 +34,7 @@ export default function BookshopHomepage() {
       id: 3,
       title: "The Song of Achilles",
       author: "Madeline Miller",
-      cover: "/api/placeholder/220/320",
+      cover: p3,
       price: "$15.99",
       rating: 4.6
     },
@@ -38,7 +42,7 @@ export default function BookshopHomepage() {
       id: 4,
       title: "Project Hail Mary",
       author: "Andy Weir",
-      cover: "/api/placeholder/220/320",
+      cover: p4,
       price: "$19.99",
       rating: 4.8
     }
