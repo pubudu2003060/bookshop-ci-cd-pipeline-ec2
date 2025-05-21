@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
-      
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+
+    env:
+      IMAGE_TAG: latest
 
     steps:
       - name: Checkout Code
@@ -27,9 +29,10 @@ jobs:
 
       - name: Build, Tag, and Push Docker image
         run: |
-          IMAGE_TAG=latest
-          docker build -t ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          docker push ${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: SSH and Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -38,7 +41,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+            ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
             docker stop react-app || true
             docker rm react-app || true
-            docker run -d -p 80:80 --name react-app ${{ secrets.ECR_REPOSITORY }}:latest
+            docker run -d -p 80:80 --name react-app $ECR_REGISTRY/$ECR_REPOSITORY:latest
