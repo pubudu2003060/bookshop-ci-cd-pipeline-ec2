@@ -4,6 +4,8 @@ import p1 from './assets/tml.jpeg'
 import p2 from './assets/e.jpeg'
 import p3 from './assets/tsoa.jpg'
 import p4 from './assets/phm.jpg'
+import p5 from './assets/bc.jpg'
+
 
 export default function BookshopHomepage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -182,7 +184,7 @@ export default function BookshopHomepage() {
             </div>
             <div className="md:w-1/2 flex justify-center">
               <img 
-                src="/api/placeholder/500/350" 
+                src={p5} 
                 alt="Collection of books" 
                 className="rounded-lg shadow-xl" 
               />
