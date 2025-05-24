@@ -6,19 +6,26 @@ This directory contains the GitHub Actions workflows for the CI/CD pipeline. The
 
 1.  **`build.yml`**:
     *   **Trigger**: Pushes to the `develop` branch (or other feature branches).
-    *   **Purpose**: Builds the Docker image for the application and pushes it to Amazon ECR.
+    *   **Purpose**: Sets up the environment, runs unit tests, builds the Docker image for the application, and pushes it to both Amazon ECR and Docker Hub.
     *   **Key Steps**:
         *   Checks out the source code.
+        *   Sets up Node.js environment.
+        *   Installs project dependencies (e.g., `npm install`).
+        *   Runs unit tests (e.g., `npm test`).
         *   Configures AWS credentials.
         *   Logs into Amazon ECR.
+        *   Logs into Docker Hub.
         *   Builds the Docker image using the `Dockerfile` in the root directory.
-        *   Tags the image (e.g., `latest` or with a commit SHA).
+        *   Tags the image for ECR and Docker Hub (e.g., `latest` or with a commit SHA).
         *   Pushes the tagged image to the specified ECR repository.
+        *   Pushes the tagged image to Docker Hub.
     *   **Secrets Required**:
         *   `AWS_ACCESS_KEY_ID`
         *   `AWS_SECRET_ACCESS_KEY`
         *   `AWS_REGION`
         *   `ECR_REPOSITORY`
+        *   `DOCKERHUB_USERNAME`
+        *   `DOCKERHUB_TOKEN`
 
 2.  **`deploy_staging.yml`**:
     *   **Trigger**: Pushes to the `staging` branch.
