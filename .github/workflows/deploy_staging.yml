@@ -1,0 +1,44 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging # Trigger deployment when code is pushed to the staging branch
+
+jobs:
+  deploy-to-staging-ec2:
+    runs-on: self-hosted # Assuming self-hosted runner
+    needs: build-and-push-image # Optional: if we want to ensure build runs first, though branch trigger is primary here
+    env:
+      IMAGE_TAG: latest # Or the specific tag deployed to staging
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3 # Checkout the staging branch code
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # General AWS creds
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: SSH and Deploy to Staging EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_EC2_HOST }} # Specific secret for staging host
+          username: ${{ secrets.STAGING_EC2_USER }} # Specific secret for staging user
+          key: ${{ secrets.STAGING_EC2_SSH_KEY }} # Specific secret for staging SSH key
+          script: |
+            ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} # Assuming same ECR repo
+            # Pull the specific image tag if not 'latest', e.g., could be git SHA
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker stop react-app-staging || true # Use a different container name for staging
+            docker rm react-app-staging || true
+            # Run with a different name and potentially different port mapping if needed
+            docker run -d -p 8080:80 --name react-app-staging $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

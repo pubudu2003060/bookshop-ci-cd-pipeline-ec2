@@ -1,0 +1,41 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment when code is pushed/merged to the main branch
+
+jobs:
+  deploy-to-production-ec2:
+    runs-on: self-hosted # Assuming self-hosted runner
+    env:
+      IMAGE_TAG: latest # Production always deploys 'latest' or a specific release tag
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3 # Checkout the main branch code
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: SSH and Deploy to Production EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }} # Original production EC2 host secret
+          username: ${{ secrets.EC2_USER }} # Original production EC2 user secret
+          key: ${{ secrets.EC2_SSH_KEY }} # Original production EC2 SSH key secret
+          script: |
+            ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} # ECR repository
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker stop react-app || true # Original container name
+            docker rm react-app || true
+            docker run -d -p 80:80 --name react-app $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
