@@ -85,7 +85,7 @@ export default function BookshopHomepage() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-2xl font-bold text-indigo-700">BookNook</h1>
+                <h1 className="text-2xl font-bold text-indigo-700">BookHub</h1>
               </div>
               <div className="hidden md:ml-6 md:flex md:space-x-8">
                 {categories.slice(0, 4).map((category) => (
